@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "481069643810",
+    "project_id": "my-app-b-a",
+    "storage_bucket": "my-app-b-a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481069643810:android:2250009f97c808ad93727b",
+        "android_client_info": {
+          "package_name": "com.brigitteh.myApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "481069643810-rvqn1eji8gk2he09bj105sjurl4c4fls.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8v-Z9MMhtWusTwZ_dTdp8_HRjGh2eXrY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "481069643810-rvqn1eji8gk2he09bj105sjurl4c4fls.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
