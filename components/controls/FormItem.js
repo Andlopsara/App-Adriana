@@ -1,5 +1,4 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
-
 import Fonts from "../../constants/Fonts";
 import Colors from "../../constants/Colors";
 
@@ -30,13 +29,13 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   label: {
-    color: Colors.oldSilver,
+    color: Colors.green,
     fontSize: Fonts.size.small,
     fontFamily: Fonts.family.regular,
     textAlign: "left",
   },
   input: {
-    borderBottomColor: Colors.cinnabar,
+    borderBottomColor: Colors.green,
     borderBottomWidth: 2,
     color: Colors.jet,
     fontSize: Fonts.size.normal,

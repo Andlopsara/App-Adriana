@@ -1,65 +1,123 @@
-import { useState } from 'react';
-import { FlatList, ScrollView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { Content, Header, Wrapper } from '../components/layout';
-import State from '../components/controls/State';
-import Base from '../components/modals/Base';
-import FormItem from '../components/controls/FormItem';
-import Button from '../components/controls/Button';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import Base from '../components/modals/Base'; // Importando el Modal
+import FormItem from '../components/controls/FormItem'; // Importando el FormItem
 
 export default function Home({ navigation }) {
-    const [visible, setVisible] = useState(false);
-    const [selected, setSelected] = useState();
-    const [status, setStatus] = useState("Activo"); 
-    const data = [
-        { id: 1, name: 'Ensalada de pollo', code: '179.00', status: true },
-        { id: 2, name: 'Ensalada de atun', code: '150.00', status: true },
-        { id: 3, name: 'Promoción del mes', code: '200.00', status: false },
-        { id: 4, name: 'Ensalada de frutas', code: '150.00', status: true },
-    ];
-
-    const toggleModal = () => {
-        setVisible(!visible);
-    };
+    const [modalVisible, setModalVisible] = useState(false);
+    const [name, setName] = useState('');
 
     return (
-        <Wrapper>
-            <Header title="" />
-            <Content>
-                {visible && (
-                    <Base
-                        id="modal-state"
-                        visible={visible}
-                        title={"Editar datos del producto"}
-                        onClose={toggleModal}
-                    >
-                        <FormItem label="Nombre" />
-                        <FormItem label="Precio" />
-                        <FormItem label="Estatus" />
-                        <Picker
-                            selectedValue={status}
-                            onValueChange={(itemValue) => setStatus(itemValue)}
-                        >
-                            <Picker.Item label="Activo" value="Activo" />
-                            <Picker.Item label="Inactivo" value="Inactivo" />
-                        </Picker>
-                    </Base>
-                )}
-                <Button label="Abrir" onPress={toggleModal} />
-                <ScrollView horizontal={true}>
-                    <FlatList
-                        data={data}
-                        renderItem={State}
-                        keyExtractor={item => item.id.toString()}
-                    />
-                </ScrollView>
-                {}
-                <Button 
-                    label="Ordenar" 
-                    onPress={() => navigation.navigate('Ordenar')} 
-                    style={{ marginTop: 20 }} 
+        <View style={styles.container}>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+                    <Icon name="bars" size={28} color="#0D3B2E" />
+                </TouchableOpacity>
+                <Image 
+                    source={require('../assets/logoIcon.png')} 
+                    style={styles.logo} 
                 />
-            </Content>
-        </Wrapper>
+                <TouchableOpacity onPress={() => navigation.navigate('Carrito')}>
+                    <Icon name="shopping-cart" size={28} color="#0D3B2E" />
+                </TouchableOpacity>
+            </View>
+
+            {/* Título */}
+            <Text style={styles.title}>BIENVENIDO</Text>
+
+            {/* Botones de opciones */}
+            <TouchableOpacity 
+                style={styles.option} 
+                onPress={() => navigation.navigate('Promociones')}
+            >
+                <Text style={styles.optionText}>PROMOCIONES</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={styles.option} 
+                onPress={() => navigation.navigate('Menu')}
+            >
+                <Text style={styles.optionText}>MENÚ</Text>
+            </TouchableOpacity>
+
+            {/* Footer */}
+            <View style={styles.footer}>
+                <View style={styles.iconContainer}>
+                    <Icon name="facebook" size={24} color="#FFFFFF" />
+                    <Icon name="tiktok" size={24} color="#FFFFFF" />
+                    <Icon name="instagram" size={24} color="#FFFFFF" />
+                </View>
+                <Text style={styles.footerText}>
+                    Derechos reservados Super Salads SA de CV 2024
+                </Text>
+            </View>
+        </View>
     );
-};
+}
+
+// Estilos
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#EAF8F2',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '90%',
+        position: 'absolute',
+        top: 40,
+    },
+    logo: {
+        width: 150,
+        height: 120,
+        resizeMode: 'contain',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#0D3B2E',
+        marginBottom: 20,
+        marginTop: 60,
+    },
+    option: {
+        backgroundColor: '#A3D9A5',
+        paddingVertical: 80,
+        paddingHorizontal: 100,
+        borderRadius: 10,
+        marginVertical: 10,
+        width: '80%',
+        alignItems: 'center',
+    },
+    optionText: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#0D3B2E',
+    },
+    footer: {
+        position: 'absolute',
+        bottom: 20,
+        backgroundColor: '#0D3B2E',
+        width: '100%',
+        padding: 25,
+        alignItems: 'center',
+    },
+    iconContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 15,
+        marginBottom: 5,
+    },
+    footerText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        textAlign: 'center',
+    },
+});

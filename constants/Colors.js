@@ -9,4 +9,5 @@ export default{
     black: '#000000',
     oldSilver: '#838485',
     cinnabar: '#F24236',
+    green:'#013424'
 };

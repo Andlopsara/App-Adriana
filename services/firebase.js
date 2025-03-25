@@ -1,69 +1,71 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Alert } from 'react-native';
 
 import { auth, db } from '../firebase-config';
 
 /**
- * Función para cerrar sesión
+ * Cierra sesión del usuario
  */
 export const logoutAuth = async () => {
   try {
-    await auth.signOut();
+    await signOut(auth);
   } catch (error) {
-    Alert.alert('Error', JSON.stringify(error));
-  }
-};
-/**
- * Permite registrar un usuario nuevo
- *
- * @param {object} user - Objeto que representa el registro de un usuario nuevo
- * @returns boolean
- */
-export const registerEmailPass = async (user) => {
-  try {
-    console.log('Correo:', user.email);
-    console.log('user:', user.full_name);
-    console.log('Intentando registrar al usuario...');
-    const context = await createUserWithEmailAndPassword(
-      auth,
-      user.email, // Correo
-      user.password, // Contraseña
-      
-    );
-    console.log('Usuario creado:', context.user.uid);
-
-    const userRef = doc(db, 'usuarios', context.user.uid);
-    console.log('Guardando en Firestore...');
-    await setDoc(userRef, {
-      
-      email: user.email,
-      full_name: user.full_name,
-      birthdate: user.birthdate, // Enviamos la fecha seleccionada
-    });
-
-    return true; // Registro exitoso
-  } catch (error) {
-    console.log('Error al registrar el usuario:', error);
-    Alert.alert('Error', JSON.stringify(error));
-    return false; // Error en el registro
+    Alert.alert("Error", "No se pudo cerrar sesión.");
   }
 };
 
-
 /**
- * Permite iniciar sesión
- *
- * @param {string} email - Correo electrónico
- * @param {string} password - Contraseña
+ * Inicia sesión solo si el usuario está en Firestore
  */
 export const loginWithEmailPass = async (email, password) => {
   try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    return result;
+    // Autenticar usuario en Firebase Authentication
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    // Consultar Firestore para verificar si el usuario está registrado en "users"
+    const userRef = doc(db, 'users', uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      Alert.alert("Error", "Usuario no registrado en la base de datos.");
+      return false;
+    }
+
+    return true; // Usuario válido
   } catch (error) {
-    Alert.alert('Error', 'Credenciales incorrectas')
-    //Alert.alert('Error', JSON.stringify(error));
+    Alert.alert("Error", "Correo o contraseña incorrectos.");
     return false;
+  }
+};
+
+/**
+ * Registra un usuario nuevo en Firebase Authentication y Firestore
+ */
+export const registerEmailPass = async (user) => {
+  try {
+    // Crear usuario en Firebase Authentication
+    const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
+    const uid = userCredential.user.uid;
+
+    // Guardar información en Firestore
+    await setDoc(doc(db, 'users', uid), {
+      full_name: user.full_name,
+      email: user.email
+    });
+
+    Alert.alert("Éxito", "Usuario registrado correctamente.");
+    return true; // Usuario registrado correctamente
+
+  } catch (error) {
+    if (error.code === 'auth/email-already-in-use') {
+      Alert.alert("Error", "Este correo ya está registrado. Intenta con otro.");
+    } else if (error.code === 'auth/weak-password') {
+      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres.");
+    } else {
+      Alert.alert("Error", "Hubo un problema con el registro.");
+    }
+    return false; // Fallo en el registro
   }
 };

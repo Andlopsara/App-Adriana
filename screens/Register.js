@@ -1,68 +1,81 @@
 import { useState } from "react";
-import { Content, Wrapper, Title, } from "../components/layout";
+import { Alert } from "react-native";
+
+import { Content, Wrapper, Title, Logo } from "../components/layout";
 import FormItem from "../components/controls/FormItem";
 import Button from "../components/controls/Button";
+
 import { registerEmailPass } from "../services/firebase";
-import Colors from "../constants/Colors";
 
 export default function Register({ navigation }) {
-  const [user, setUser] = useState({
-    email: "",
-    full_name: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState(false);
-
-  const goToLogin = () => {
-    navigation.navigate("Login");
-  };
-
-  const registerUser = async () => {
-    setLoading(true);
-    const result = await registerEmailPass(user);
-    console.log(user.email, user.password)
-    if (result) {
-      setUser({
+    const [user, setUser] = useState({
         email: "",
         full_name: "",
         password: "",
-      });
-      setLoading(false);
-      navigation.navigate("Login");
-    } else {
-      setLoading(false);
-    }
-  };
+    });
+    const [loading, setLoading] = useState(false);
 
-  return (
-    <Wrapper>
-      <Content>
-        <FormItem
-          value={user.email}
-          label="Correo electrónico"
-          keyboardType="email-address"
-          onChange={(value) =>
-            setUser((prev) => ({ ...prev, email: value.trim() }))
-          }
-        ></FormItem>
-        <FormItem
-          value={user.full_name}
-          label="Nombre completo"
-          onChange={(value) =>
-            setUser((prev) => ({ ...prev, full_name: value }))
-          }
-        ></FormItem>
-        <FormItem
-          secure={true}
-          label="Contraseña"
-          value={user.password}
-          onChange={(value) =>
-            setUser((prev) => ({ ...prev, password: value.trim() }))
-          }
-        ></FormItem>
-        <Button onPress={registerUser} label={"REGISTRARME"} isLoading={loading} />
-        <Button onPress={goToLogin} label={"INICIAR SESIÓN"} />
-      </Content>
-    </Wrapper>
-  );
+    const goToLogin = () => {
+        navigation.dispatch({
+            type: 'NAVIGATE',
+            payload: { name: "Login" }
+        });
+    };
+
+    const registerUser = async () => {
+        if (!user.email || !user.full_name || !user.password) {
+            Alert.alert("Error", "Todos los campos son obligatorios.");
+            return;
+        }
+
+        if (user.password.length < 6) {
+            Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres.");
+            return;
+        }
+
+        setLoading(true);
+        const result = await registerEmailPass(user);
+        setLoading(false);
+
+        if (result) {
+            Alert.alert("Éxito", "Usuario registrado correctamente.");
+            setUser({ email: "", full_name: "", password: "" });
+
+            navigation.replace("Login");
+        }
+    };
+
+    return (
+        <Wrapper>
+            <Content>
+                <Logo />
+                <Title title="Registrar una nueva cuenta" />
+                <FormItem
+                    value={user.full_name}
+                    label="Nombre completo"
+                    onChange={(value) =>
+                        setUser((prev) => ({ ...prev, full_name: value }))
+                    }
+                />
+                <FormItem
+                    value={user.email}
+                    label="Correo electrónico"
+                    keyboardType="email-address"
+                    onChange={(value) =>
+                        setUser((prev) => ({ ...prev, email: value.trim() }))
+                    }
+                />
+                <FormItem
+                    secure={true}
+                    label="Contraseña"
+                    value={user.password}
+                    onChange={(value) =>
+                        setUser((prev) => ({ ...prev, password: value.trim() }))
+                    }
+                />
+                <Button onPress={registerUser} label="REGISTRARME" isLoading={loading} />
+                <Button onPress={goToLogin} label="INICIAR SESIÓN" />
+            </Content>
+        </Wrapper>
+    );
 }
