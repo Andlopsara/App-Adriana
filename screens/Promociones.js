@@ -1,16 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
-import { getDatabase, ref, set, push } from "firebase/database"; // Importar Firebase
+import { getFirestore, collection, getDocs } from "firebase/firestore"; // Importar Firestore
+import { db } from '../firebase-config';  // Volver un nivel desde la carpeta 'screens' para acceder a 'firebase-config.js'
+ // Importar la configuración de Firebase
 
 export default function Promociones() {
     const navigation = useNavigation();
+    
+    const [promociones, setPromociones] = useState([]);
 
-    const [promociones, setPromociones] = useState([
-        { id: "1", name: "2x1 Ensalada César", price: 150, quantity: 0 },
-        { id: "2", name: "Combo Ensalada + Jugo", price: 180, quantity: 0 },
-    ]);
+    useEffect(() => {
+        // Función para obtener promociones de Firestore
+        const fetchPromotions = async () => {
+            const promotionsCol = collection(db, 'promotions');
+            const promotionSnapshot = await getDocs(promotionsCol);
+            const promotionsList = promotionSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setPromociones(promotionsList);
+        };
+
+        fetchPromotions();
+    }, []);
 
     // Función para actualizar la cantidad de un producto
     const updateQuantity = (id, change) => {
@@ -47,7 +61,7 @@ export default function Promociones() {
         });
 
         // Redirigir al carrito después de agregar los productos
-        navigation.navigate("Carrito");
+        navigation.navigate("carrito");
     };
 
     return (
